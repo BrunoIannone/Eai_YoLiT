@@ -7,7 +7,7 @@ import utils
 
 
    
-dir = "/home/bruno/Scaricati/Dataset/GazeCapture/03003/"
+dir = "/home/bruno/Scaricati/Dataset/GazeCapture/04006/"
 json_file = dir + 'appleFace.json'  # Replace with the path to your JSON file
 images_dir = dir + 'frames'       # Directory containing input images
 

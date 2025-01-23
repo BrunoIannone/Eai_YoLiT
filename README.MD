@@ -12,3 +12,11 @@ json_file = dir + 'appleFace.json'  # Replace with the path to your JSON file
 images_dir = dir + 'frames'       # Directory containing input images
 
 utils.draw_bounding_boxes_opencv(json_file, images_dir, True)
+
+
+Folder structure for a sample:
+-Folder
+    -Sample folder (id = number)
+        -frames
+            -Images for the sample (sorted in ascending order) (.jpeg) (id = number)
+        -appleFace.json (Json containing faces bounding boxes information for each sample image)

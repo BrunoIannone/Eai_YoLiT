@@ -2,12 +2,19 @@ import cv2
 import json
 import os
 
-def process_json(file_path):
+def process_json(json_file):
+    """Create a list of dictionaries containing bounding box coordinates for each valid sample. Invalid samples are represented with a 0. An example: [{'X': 112.28, 'Y': 188.28, 'W': 293.44, 'H': 293.44},0]
 
+    Args:
+        json_file (str): path to json file containing X and Y coordinates, Width (W) and Height (H) of the bounding box and a binary list of valid samples.
+
+    Returns:
+       List: List of dictionary for bounding box coordinates. Invalid samples are represented with a 0
+    """
     
 
     # Load the JSON data
-    with open(file_path, 'r') as f:
+    with open(json_file, 'r') as f:
         data = json.load(f)
 
     # Ensure all keys are present in the JSON structure
@@ -33,13 +40,17 @@ def process_json(file_path):
 
     return valid_boxes
 
-
-
-
-
-
 def draw_bounding_boxes_opencv(json_file, images_dir,show):
-    
+    """Draw the bounding boxes over all images of a sample. 
+
+    Args:
+        json_file (str): path to json file containing X and Y coordinates, Width (W) and Height (H) of the bounding box and a binary list of valid samples.
+        images_dir (str): path to folder containing all sample images.
+        show (bool): True: show all sample images one at a time (press a button to move to the next one). Else: do nothing.
+
+    Raises:
+        ValueError: raise an error when the number of images and bounding boxes mismatch.
+    """
     data = process_json(json_file)
     images = sorted([img for img in os.listdir(images_dir)])
     
@@ -50,8 +61,7 @@ def draw_bounding_boxes_opencv(json_file, images_dir,show):
     i = 0
 
     for img in images:
-        print(i)
-        print(img)
+        print(f"index {i}, image {img}")
 
         if data[i] == 0:
             i+=1
@@ -79,7 +89,7 @@ def draw_bounding_boxes_opencv(json_file, images_dir,show):
             if show:
 
                 cv2.imshow("Sample",sample)
-                k = cv2.waitKey(0) # Wait for a keystroke in the window
+                k = cv2.waitKey(0)
                 i+=1
 
             else:
