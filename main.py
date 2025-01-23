@@ -6,16 +6,17 @@ import torch
 import utils
 
 
-dir = "/home/bruno/Scaricati/Dataset/GazeCapture/01734/"  # 03454
-f_json_file = dir + 'appleFace.json'  # Replace with the path to your JSON file
-l_json_file = dir + "appleLeftEye.json"
-r_json_file = dir + "appleRightEye.json"
+dir = "/home/bruno/Scaricati/Dataset/GazeCapture/train"  # 03454
+sample = "01734/"
+f_json_file = dir + sample +  'appleFace.json'  # Replace with the path to your JSON file
+l_json_file = dir + sample +  "appleLeftEye.json"
+r_json_file = dir + sample +  "appleRightEye.json"
 
 images_dir = dir + 'frames'       # Directory containing input images
 
-utils.draw_bounding_boxes_opencv(
-    f_json_file, l_json_file, r_json_file, images_dir, True)
+# utils.draw_bounding_boxes_opencv(
+#     f_json_file, l_json_file, r_json_file, images_dir, True)
 
-
+#utils.sort_samples(dir)
 # cv.imshow("Pisellone",cv.imread("/home/bruno/Scaricati/Dataset/GazeCapture/00507/frames/00862.jpg"))
 # k = cv.waitKey(0) # Wait for a keystroke in the window

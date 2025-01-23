@@ -1,7 +1,7 @@
 import cv2
 import json
 import os
-
+import shutil
 
 def process_json(json_file):
     """Create a list of dictionaries containing bounding box coordinates for each valid sample. Invalid samples are represented with a 0. An example: [{'X': 112.28, 'Y': 188.28, 'W': 293.44, 'H': 293.44},0]
@@ -121,3 +121,29 @@ def draw_bounding_boxes_opencv(f_json_file, l_json_file, r_json_file, images_dir
 
         else:
             print(f"Failed to read {img}.")
+
+
+def sort_samples(images_dir, dest_dir):
+    """Util function to sort images in train,val and test set. Note: dest_dir must be outside images_dir
+
+    Args:
+        images_dir (str): Images direction
+        dest_dir (str): Destination path
+
+    """
+    samples = sorted([sample_folder for sample_folder in os.listdir(images_dir) if os.path.isdir(os.path.join(images_dir, sample_folder))])
+    
+    for i, img in enumerate(samples):
+        print(img)
+        
+        with open(images_dir + img + "/info.json", 'r') as f:
+            data = json.load(f)
+        
+        set = data["Dataset"]
+
+        if set == "test":
+            shutil.move(images_dir + img, dest_dir + "test")
+        elif set == "val":
+            shutil.move(images_dir + img, dest_dir + "val")
+        else:
+            shutil.move(images_dir + img, dest_dir + "train")

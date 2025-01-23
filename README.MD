@@ -13,10 +13,12 @@ images_dir = dir + 'frames'       # Directory containing input images
 
 utils.draw_bounding_boxes_opencv(json_file, images_dir, True)
 
+To sort the dataset in train/val/test sets, once extracted, you can use the sort_samples method. Notice, destination folders must be outside the GazeCapture Folder; you can move it back inside after its execution.
 
 Folder structure for a sample:
 -Folder
-    -Sample folder (id = number)
-        -frames
-            -Images for the sample (sorted in ascending order) (.jpeg) (id = number)
-        -appleFace.json (Json containing faces bounding boxes information for each sample image)
+    -train/val/test
+        -Sample folder (id = number)
+            -frames
+                -Images for the sample (sorted in ascending order) (.jpeg) (id = number)
+            -appleFace.json (Json containing faces bounding boxes information for each sample image)
