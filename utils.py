@@ -227,3 +227,13 @@ def sort_samples(images_dir, dest_dir):
             shutil.move(images_dir + img, dest_dir + "val")
         else:
             shutil.move(images_dir + img, dest_dir + "train")
+
+def bbox_dict_to_list_of_list(bbox_dict):
+    bbox_list = []
+    for dict in bbox_dict:
+        if dict == 0:
+            bbox_list.append(0)
+        else:
+            bbox_list.append(list(dict.values())) 
+
+    return bbox_list
