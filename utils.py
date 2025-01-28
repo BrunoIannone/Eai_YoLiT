@@ -245,4 +245,29 @@ def bbox_dict_to_list_of_list(bbox_dict):
             bbox_list.append(list(dict.values())) 
 
     return bbox_list
-    
+
+def convert_gazecapture_for_yolo(src_folder,dest_folder):
+    for persona in os.listdir(src_folder):
+
+        f_data = get_bbox_from_json(os.path.join(src_folder,persona, 'appleFace.json'))
+
+        l_eye_data = get_bbox_from_json(os.path.join(src_folder,persona, 'appleLeftEye.json'))
+
+        r_eye_data = get_bbox_from_json(os.path.join(src_folder,persona, 'appleRightEye.json'))
+
+        if len(f_data) != len(r_eye_data) or len(f_data) != len(l_eye_data):
+            raise ValueError(
+                f"Dimension mismatch: data has {len(f_data)} items, left eye data has {len(l_eye_data)}, right eye data has {len(r_eye_data)}")
+        
+        for i,image in enumerate(os.listdir(os.path.join(src_folder, persona , "frames"))):
+            
+            src_image_path = os.path.join(src_folder, persona , "frames")
+            new_name = persona + "_"  + str(i) + "."  +  "jpg"
+                        
+            os.rename(os.path.join(src_image_path, image), os.path.join(src_image_path, new_name)) 
+            shutil.copy(os.path.join(src_image_path, new_name), dest_folder )
+
+
+
+
+
