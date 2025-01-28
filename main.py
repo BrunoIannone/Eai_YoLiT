@@ -2,6 +2,7 @@ import torch
 # from autodistill_grounded_sam_2 import GroundedSAM2
 # from autodistill.detection import CaptionOntology
 # from autodistill_yolov8 import YOLOv8
+from torchvision.io import read_image
 
 import utils
 import albumentations as A
@@ -51,8 +52,11 @@ transform = A.Compose([
 image = []
 image.append(cv.imread(images_dir + "/00000.jpg"))
 image.append(cv.imread(images_dir + "/00001.jpg"))
-# #image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+
 for i,img in enumerate(image):
+    #img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    #cv.imshow("Sample", img)
+    #k = cv.waitKey(0)
 
 # utils.draw_bounding_boxes_from_list(face_bbox, images_dir, True)
     transformed = transform(image=img, bboxes=[face_bbox[i],l_bbox[i]], labels=labels)

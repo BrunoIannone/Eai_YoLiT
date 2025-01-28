@@ -40,6 +40,13 @@ def get_bbox_from_json(json_file):
 
     return valid_boxes
 
+def bbox_coord_from_dict(bbox_dict):
+    x = int(bbox_dict['X'])
+    y = int(bbox_dict['Y'])
+    w = int(bbox_dict['W'])
+    h = int(bbox_dict['H'])
+    return x,y,w,h
+
 
 def draw_bounding_boxes_from_json(f_json_file, l_json_file, r_json_file, images_dir, show):
     """Draw the bounding boxes over all images of a sample. Json files contain X and Y coordinates, Width (W) and Height (H) of the bounding box and a binary list of valid samples.
@@ -121,6 +128,7 @@ def draw_bounding_boxes_from_json(f_json_file, l_json_file, r_json_file, images_
 
         else:
             print(f"Failed to read {img}.")
+
 def draw_bounding_boxes_from_list(f_list,images_dir,show):#f_json_file, l_json_file, r_json_file, images_dir, show):
     """Draw the bounding boxes over all images of a sample. Json files contain X and Y coordinates, Width (W) and Height (H) of the bounding box and a binary list of valid samples.
 
@@ -237,3 +245,4 @@ def bbox_dict_to_list_of_list(bbox_dict):
             bbox_list.append(list(dict.values())) 
 
     return bbox_list
+    
