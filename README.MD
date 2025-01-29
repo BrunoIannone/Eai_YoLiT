@@ -15,7 +15,7 @@ Sample Folder/
     ├── appleLeftEye.json     # JSON containing left eye bounding box information for each sample image
     ├── appleRightEye.json    # JSON containing right eye bounding box information for each sample image
 ```
-To convert this dataset for YoLo training, one might use the function **`convert_gazecapture_for_yolo`**. See [Dataset Management and Organization](#Dataset Management and Organization)
+To convert this dataset for YoLo training, one might use the function **`convert_gazecapture_for_yolo`**. See [Dataset Management and Organization](#dataset-management-and-organization)
   
 ## Function in utils.py
 
