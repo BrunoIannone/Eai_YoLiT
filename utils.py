@@ -313,7 +313,7 @@ def convert_gazecapture_for_yolo(src_folder):
     """This function takes the GazeCapture dataset and make it suitable for YoLo training. 
     Namely, it creates the images and labels folders and, inside bot, it creates the train, val and test set folders.
     Next, each image is sorted inside its respective set folder while doing the same with a .txt file containing bbox information for each sample image. Notice that the .txt is put
-    inside the labels. Each images and .txt have the same name. It is formed by the sample id plus an index representing the i-th image for the sample.
+    inside the labels folder. Each images and .txt have the same name. It is formed by the sample id plus an index representing the i-th image for the sample.
     Namely, each file will be <sampleid>_<index>.{jpg,txt}
 
 

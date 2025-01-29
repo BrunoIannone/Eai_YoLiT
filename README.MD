@@ -15,13 +15,11 @@ Sample Folder/
     ├── appleLeftEye.json     # JSON containing left eye bounding box information for each sample image
     ├── appleRightEye.json    # JSON containing right eye bounding box information for each sample image
 ```
-To convert this dataset for YoLo training, one might use the function **`convert_gazecapture_for_yolo`**. See [Dataset Management and Organization](#dataset-management-and-organization)
+To convert this dataset for YoLo training, one might use the function **`convert_gazecapture_for_yolo`** in utils.py. See [Dataset Management and Organization](#dataset-management-and-organization)
   
 ## Function in utils.py
 
 This script (`utils.py`) contains a set of functions for managing and processing bounding boxes in images, primarily for datasets like GazeCapture. The functions allow extracting, converting, drawing, and organizing bounding boxes from JSON and TXT files, as well as providing tools for preparing datasets for training with YOLO.
-
-## Main Functions
 
 ### Bounding Box Extraction and Management
 
@@ -42,7 +40,11 @@ This script (`utils.py`) contains a set of functions for managing and processing
 ### Dataset Management and Organization
 
 - **`sort_samples(images_dir, dest_dir)`**: Organizes images into training, validation, and test folders based on information in the `info.json` file.
-- **`convert_gazecapture_for_yolo(src_folder)`**: Converts the GazeCapture dataset to be compatible with YOLO by organizing images and labels into structured folders.
+- **`convert_gazecapture_for_yolo(src_folder)`**: This function takes the GazeCapture dataset and makes it suitable for YoLo training. 
+Namely, it creates the images and labels folders and, in both, it creates the train, val and test set folders.
+Next, each image is sorted inside its respective set folder while doing the same with a .txt file containing bbox information for each sample image. Notice that the .txt is put
+inside the labels folder. Each images and .txt have the same name. It is formed by the sample id plus an index representing the i-th image for the sample.
+Namely, each file will be <sampleid>_<index>.{jpg,txt}
 - **`count_samples(src_folder)`**: Counts the number of valid images for each set (train, val, test).
 
 ### Writing Bounding Boxes to File
