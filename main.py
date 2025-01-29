@@ -3,11 +3,12 @@ import torch
 # from autodistill.detection import CaptionOntology
 # from autodistill_yolov8 import YOLOv8
 from torchvision.io import read_image
-
+from ultralytics import YOLO
 import utils
 import albumentations as A
 import cv2 as cv
 import numpy as np
+import os
 dir = "/home/bruno/Scaricati/Dataset/GazeCapture"  # 03454
 sample = "03454/"
 # Replace with the path to your JSON file
@@ -17,4 +18,19 @@ r_json_file = dir + sample + "appleRightEye.json"
 
 images_dir = dir + sample + 'frames'       # Directory containing input images
 
-#utils.draw_bounding_boxes_from_list(utils.get_bbox_from_txt(dir + "/labels" + "/train" + "/03454_0.txt"),dir+"/images"+"/train"+"/03454_0.jpg")
+utils.draw_bounding_boxes_from_list(utils.get_bbox_from_txt(dir + "/labels" + "/train" + "/03454_0.txt"),dir+"/images"+"/train"+"/03454_0.jpg")
+# model = YOLO("yolov8n.pt")
+
+# yolo_params = {
+#     "data": dir + "/data.yaml", 
+#     "epochs": 10, 
+#     "imgsz": 640
+#     }
+# results = model.train(**yolo_params)
+
+# import os
+
+# Set your labels folder path
+
+
+print("Processing complete!")

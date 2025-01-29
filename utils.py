@@ -169,20 +169,20 @@ def draw_bounding_boxes_from_list(f_list, images_dir):
 
     """
 
-    x = int(float(f_list[0].split(" ")[0]))
-    y = int(float(f_list[0].split(" ")[1]))
-    w = int(float(f_list[0].split(" ")[2]))
-    h = int(float(f_list[0].split(" ")[3]))
+    x = int(float(f_list[0].split(" ")[1]))
+    y = int(float(f_list[0].split(" ")[2]))
+    w = int(float(f_list[0].split(" ")[3]))
+    h = int(float(f_list[0].split(" ")[4]))
 
-    l_x = int(float(f_list[1].split(" ")[0]))
-    l_y = int(float(f_list[1].split(" ")[1]))
-    l_w = int(float(f_list[1].split(" ")[2]))
-    l_h = int(float(f_list[1].split(" ")[3]))
+    l_x = int(float(f_list[1].split(" ")[1]))
+    l_y = int(float(f_list[1].split(" ")[2]))
+    l_w = int(float(f_list[1].split(" ")[3]))
+    l_h = int(float(f_list[1].split(" ")[4]))
 
-    r_x = int(float(f_list[2].split(" ")[0]))
-    r_y = int(float(f_list[2].split(" ")[1]))
-    r_w = int(float(f_list[2].split(" ")[2]))
-    r_h = int(float(f_list[2].split(" ")[3]))
+    r_x = int(float(f_list[2].split(" ")[1]))
+    r_y = int(float(f_list[2].split(" ")[2]))
+    r_w = int(float(f_list[2].split(" ")[3]))
+    r_h = int(float(f_list[2].split(" ")[4]))
 
     sample = cv2.imread(images_dir)
 
@@ -304,9 +304,9 @@ def write_list(elem_list, dest_folder, file_name):
     """
     with open(os.path.join(dest_folder, file_name + ".txt"), "a") as file:
 
-        elem_list = list(elem_list.values())
-        line = " ".join(map(str, elem_list))
-        file.write(line + "\n")
+        for class_id, bbox_params in enumerate(elem_list.values()):  # Add class ID based on line index
+            line = f"{class_id} " + " ".join(map(str, bbox_params))
+            file.write(line + "\n")
 
 def write_dataset_yaml(src_folder, class_names, output_filename="data.yaml"):
     """Create yaml file of the dataset for YoLo
@@ -407,6 +407,7 @@ def convert_gazecapture_for_yolo(src_folder, label_list):
                       os.path.join(img_dest_folder, new_name))
             txt_dest_folder = os.path.join(
                 src_folder, "labels", destination_set["Dataset"])
+            ##TODO: convert bboxes to yolo
             write_list(f_data[i], txt_dest_folder, new_name.split(".")[0])
             write_list(l_eye_data[i], txt_dest_folder, new_name.split(".")[0])
             write_list(r_eye_data[i], txt_dest_folder, new_name.split(".")[0])
