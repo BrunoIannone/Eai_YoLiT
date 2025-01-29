@@ -44,7 +44,7 @@ This script (`utils.py`) contains a set of functions for managing and processing
 Namely, it creates the images and labels folders and, in both, it creates the train, val and test set folders.
 Next, each image is sorted inside its respective set folder while doing the same with a .txt file containing bbox information for each sample image. Notice that the .txt is put
 inside the labels folder. Each images and .txt have the same name. It is formed by the sample id plus an index representing the i-th image for the sample.
-Namely, each file will be <sampleid>_<index>.{jpg,txt}
+Namely, each file will be sampleid_index.{jpg,txt}
 - **`count_samples(src_folder)`**: Counts the number of valid images for each set (train, val, test).
 
 ### Writing Bounding Boxes to File
