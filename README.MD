@@ -15,7 +15,8 @@ Sample Folder/
     ├── appleLeftEye.json     # JSON containing left eye bounding box information for each sample image
     ├── appleRightEye.json    # JSON containing right eye bounding box information for each sample image
 ```
-
+To convert this dataset for YoLo training, one might use the function **`convert_gazecapture_for_yolo`**. See [Dataset Management and Organization](#Dataset Management and Organization)
+  
 ## Function in utils.py
 
 This script (`utils.py`) contains a set of functions for managing and processing bounding boxes in images, primarily for datasets like GazeCapture. The functions allow extracting, converting, drawing, and organizing bounding boxes from JSON and TXT files, as well as providing tools for preparing datasets for training with YOLO.
