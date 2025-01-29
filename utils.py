@@ -300,15 +300,23 @@ def write_list(elem_list, dest_folder, file_name):
         file.write(line + "\n")
 
 
-def convert_gazecapture_for_yolo(src_folder, dest_folder):
-    os.makedirs(os.path.join(src_folder, "test"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "val"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "train"),exist_ok=True)
-    to_avoid_dirs = ["train", "val", "test"]
+def convert_gazecapture_for_yolo(src_folder):
+
+    os.makedirs(os.path.join(src_folder, "images"),exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "images/test"),exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "images/val"),exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "images/train"),exist_ok=True)
+
+    os.makedirs(os.path.join(src_folder, "labels"),exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "labels/test"),exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "labels/val"),exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "labels/train"),exist_ok=True)
+
+    to_avoid_dirs = ["images","labels"]
 
     for persona in os.listdir(src_folder):
 
-        if persona in to_avoid_dirs:
+        if persona in to_avoid_dirs or not os.path.isdir(os.path.join(src_folder, persona)) :
             continue
 
         f_data = get_bbox_from_json(os.path.join(
@@ -319,6 +327,7 @@ def convert_gazecapture_for_yolo(src_folder, dest_folder):
 
         r_eye_data = get_bbox_from_json(os.path.join(
             src_folder, persona, 'appleRightEye.json'))
+
         with open(os.path.join(src_folder, persona, "info.json"), 'r') as f:
             destination_set = json.load(f)
 
@@ -331,16 +340,49 @@ def convert_gazecapture_for_yolo(src_folder, dest_folder):
 
         for i, image in enumerate(samples):
             if f_data[i] == 0 or l_eye_data[i] == 0 or r_eye_data[i] == 0:
-                print("Invalid bbox", persona, image)
+                #print("Invalid bbox", persona, image)
                 continue
 
             src_image_path = os.path.join(src_folder, persona, "frames", image)
             new_name = persona + "_" + str(i) + "." + "jpg"
-            dest_folder = os.path.join(src_folder , destination_set["Dataset"])
-            shutil.copy(src_image_path, dest_folder)
-            os.rename(os.path.join(dest_folder, image),
-                      os.path.join(dest_folder, new_name))
+            
+            img_dest_folder = os.path.join(src_folder ,"images", destination_set["Dataset"])
+            shutil.move(src_image_path, img_dest_folder)
+            os.rename(os.path.join(img_dest_folder, image),
+                      os.path.join(img_dest_folder, new_name))
+            txt_dest_folder = os.path.join(src_folder , "labels", destination_set["Dataset"])
+            write_list(f_data[i], txt_dest_folder, new_name.split(".")[0])
+            write_list(l_eye_data[i], txt_dest_folder, new_name.split(".")[0])
+            write_list(r_eye_data[i], txt_dest_folder, new_name.split(".")[0])
+        shutil.rmtree(os.path.join(src_folder, persona))
 
-            write_list(f_data[i], dest_folder, new_name.split(".")[0])
-            write_list(l_eye_data[i], dest_folder, new_name.split(".")[0])
-            write_list(r_eye_data[i], dest_folder, new_name.split(".")[0])
+
+
+def count_samples(src_folder):
+    set = {"test":0,"train":0,"val":0}
+    for persona in os.listdir(src_folder):
+        if not os.path.isdir(os.path.join(src_folder, persona)) :
+            continue
+        f_data = get_bbox_from_json(os.path.join(
+            src_folder, persona, 'appleFace.json'))
+
+        l_eye_data = get_bbox_from_json(os.path.join(
+            src_folder, persona, 'appleLeftEye.json'))
+
+        r_eye_data = get_bbox_from_json(os.path.join(
+            src_folder, persona, 'appleRightEye.json'))
+
+        samples = sorted([sample_folder for sample_folder in os.listdir(
+            os.path.join(src_folder, persona, "frames"))])
+        with open(os.path.join(src_folder, persona, "info.json"), 'r') as f:
+            destination_set = json.load(f)
+
+        for i, image in enumerate(samples):
+            if f_data[i] == 0 or l_eye_data[i] == 0 or r_eye_data[i] == 0:
+                #print("Invalid bbox", persona, image)
+                continue
+            set[destination_set["Dataset"]]+=1
+        
+    print(set)    
+        
+

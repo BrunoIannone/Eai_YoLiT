@@ -8,7 +8,7 @@ import utils
 import albumentations as A
 import cv2 as cv
 import numpy as np
-dir = "/home/bruno/Scaricati/Dataset/GazeCapture/prova_src/"  # 03454
+dir = "/home/bruno/Scaricati/Dataset/GazeCapture"  # 03454
 sample = "03454/"
 # Replace with the path to your JSON file
 f_json_file = dir + sample + 'appleFace.json'
@@ -84,4 +84,5 @@ images_dir = dir + sample + 'frames'       # Directory containing input images
     
 #     cv.imshow("Sample", transformed_image)
 #     k = cv.waitKey(0)
-utils.convert_gazecapture_for_yolo(dir,"/home/bruno/Scaricati/Dataset/GazeCapture/prova_dest/")
+utils.convert_gazecapture_for_yolo(dir)
+#utils.count_samples(dir)
