@@ -2,7 +2,7 @@ import cv2
 import json
 import os
 import shutil
-
+import yaml
 
 def get_bbox_from_json(json_file):
     """Create a list of dictionaries containing bounding box coordinates for each valid sample. Invalid samples are represented with a 0. An example: [{'X': 112.28, 'Y': 188.28, 'W': 293.44, 'H': 293.44},0]
@@ -308,18 +308,50 @@ def write_list(elem_list, dest_folder, file_name):
         line = " ".join(map(str, elem_list))
         file.write(line + "\n")
 
+def write_dataset_yaml(src_folder, class_names, output_filename="data.yaml"):
+    """Create yaml file of the dataset for YoLo
+    
+    Args:
+        src_folder (str): Path to dataset folder
+        class_names (List): Class list
+        output_filename (str, optional): file output name. Defaults to "data.yaml".
+    """
+    # Definizione delle sottocartelle per train, val e test (se esiste)
+    train_path = os.path.join(src_folder, "images/train")
+    val_path = os.path.join(src_folder, "images/val")
+    test_path = os.path.join(src_folder, "images/test")  # Opzionale
+    
+    # Creazione del dizionario per il file YAML
+    data = {
+        "path": src_folder,
+        "train": train_path if os.path.exists(train_path) else None,
+        "val": val_path if os.path.exists(val_path) else None,
+        "test": test_path if os.path.exists(test_path) else None,
+        "nc": len(class_names),
+        "names": class_names
+    }
+    
+    # Rimuove chiavi con valore None
+    data = {k: v for k, v in data.items() if v is not None}
+    
+    # Scrittura del file YAML
+    yaml_path = os.path.join(src_folder, output_filename)
+    with open(yaml_path, "w") as f:
+        yaml.dump(data, f, default_flow_style=False)
+    
+    print(f"File YAML salvato in: {yaml_path}")
 
-def convert_gazecapture_for_yolo(src_folder):
+def convert_gazecapture_for_yolo(src_folder, label_list):
     """This function takes the GazeCapture dataset and make it suitable for YoLo training. 
     Namely, it creates the images and labels folders and, inside bot, it creates the train, val and test set folders.
     Next, each image is sorted inside its respective set folder while doing the same with a .txt file containing bbox information for each sample image. Notice that the .txt is put
     inside the labels folder. Each images and .txt have the same name. It is formed by the sample id plus an index representing the i-th image for the sample.
-    Namely, each file will be <sampleid>_<index>.{jpg,txt}
+    Namely, each file will be <sampleid>_<index>.{jpg,txt}. In the end, it creates a .yaml file.
 
 
     Args:
         src_folder (str): Path to dataset folder
-
+        label_list (List): List of bounding boxes labels. Needed to create the .yaml file
     Raises:
         ValueError: raise an error if bounding boxes number for an image mismatch
     """
@@ -379,7 +411,7 @@ def convert_gazecapture_for_yolo(src_folder):
             write_list(l_eye_data[i], txt_dest_folder, new_name.split(".")[0])
             write_list(r_eye_data[i], txt_dest_folder, new_name.split(".")[0])
         shutil.rmtree(os.path.join(src_folder, persona))
-
+    write_dataset_yaml(src_folder,label_list)    
 
 def count_samples(src_folder):
     """Count the number of valid images (so eye bbox, left eye bbox and right eye bbox "isValid" parameter in the .json must be 1) for each person.

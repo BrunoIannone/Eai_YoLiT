@@ -17,4 +17,4 @@ r_json_file = dir + sample + "appleRightEye.json"
 
 images_dir = dir + sample + 'frames'       # Directory containing input images
 
-utils.draw_bounding_boxes_from_list(utils.get_bbox_from_txt(dir + "/labels" + "/train" + "/03454_0.txt"),dir+"/images"+"/train"+"/03454_0.jpg")
+#utils.draw_bounding_boxes_from_list(utils.get_bbox_from_txt(dir + "/labels" + "/train" + "/03454_0.txt"),dir+"/images"+"/train"+"/03454_0.jpg")
