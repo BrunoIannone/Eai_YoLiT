@@ -1,24 +1,52 @@
 
-to download the dataset:
-wget -O gazecapture.tar "https://gazecapture.csail.mit.edu/dataset.php?email=iannone.1883472@studenti.uniroma1.it&hash=e744f91c29ec99f0e662c9177946c627"
-to install distil yolo: pip3 install autodistill-grounded-sam-2 autodistill-yolov8 ( se dà un errore su cuda_home, dare sudo apt install nvidia-cuda-toolkit)
+# README
 
+## Dataset Sample File Structure
 
-per recuperare tutte le bounding box valide di un sample: 
+To download the dataset, request the link here: [GazeCapture Download](https://gazecapture.csail.mit.edu/download.php)
 
-   
-dir = "/home/bruno/Scaricati/Dataset/GazeCapture/<SAMPLE>/"
-json_file = dir + 'appleFace.json'  # Replace with the path to your JSON file
-images_dir = dir + 'frames'       # Directory containing input images
+Each sample will have the following structure:
 
-utils.draw_bounding_boxes_opencv(json_file, images_dir, True)
+```
+Sample Folder/
+    ├── frames/
+    │   ├── [Images of the sample]
+    ├── appleFace.json        # JSON containing face bounding box information for each sample image
+    ├── appleLeftEye.json     # JSON containing left eye bounding box information for each sample image
+    ├── appleRightEye.json    # JSON containing right eye bounding box information for each sample image
+```
 
-To sort the dataset in train/val/test sets, once extracted, you can use the sort_samples method. Notice, destination folders must be outside the GazeCapture Folder; you can move it back inside after its execution.
+## Function in utils.py
 
-Folder structure for a sample:
--Folder
-    -train/val/test
-        -Sample folder (id = number)
-            -frames
-                -Images for the sample (sorted in ascending order) (.jpeg) (id = number)
-            -appleFace.json (Json containing faces bounding boxes information for each sample image)
+This script (`utils.py`) contains a set of functions for managing and processing bounding boxes in images, primarily for datasets like GazeCapture. The functions allow extracting, converting, drawing, and organizing bounding boxes from JSON and TXT files, as well as providing tools for preparing datasets for training with YOLO.
+
+## Main Functions
+
+### Bounding Box Extraction and Management
+
+- **`get_bbox_from_json(json_file)`**: Extracts bounding box coordinates from a JSON file and returns a list of dictionaries containing X, Y, W, H.
+- **`get_bbox_from_txt(path)`**: Reads a TXT file containing bounding boxes and returns a list of coordinates.
+- **`bbox_coord_from_dict(bbox_dict)`**: Converts a dictionary containing bounding box parameters into a tuple of integers.
+
+### Drawing Bounding Boxes on Images
+
+- **`draw_bounding_boxes_from_json(f_json_file, l_json_file, r_json_file, images_dir, show)`**: Draws face and eye bounding boxes on images read from JSON.
+- **`draw_bounding_boxes_from_list(f_list, images_dir)`**: Draws face and eye bounding boxes on an image from a list of bounding boxes.
+
+### Bounding Box Conversion and Formatting
+
+- **`bbox_dict_to_list_of_list(bbox_dict)`**: Converts a list of bounding box dictionaries into a list of lists.
+- **`coco_to_yolo_bbox_converter(bbox_list, image_width, image_height)`**: Converts bounding boxes from COCO format to YOLO format.
+
+### Dataset Management and Organization
+
+- **`sort_samples(images_dir, dest_dir)`**: Organizes images into training, validation, and test folders based on information in the `info.json` file.
+- **`convert_gazecapture_for_yolo(src_folder)`**: Converts the GazeCapture dataset to be compatible with YOLO by organizing images and labels into structured folders.
+- **`count_samples(src_folder)`**: Counts the number of valid images for each set (train, val, test).
+
+### Writing Bounding Boxes to File
+
+- **`write_list(elem_list, dest_folder, file_name)`**: Writes bounding boxes to a TXT file for YOLO training.
+
+## ToDO
+-to install distil yolo: pip3 install autodistill-grounded-sam-2 autodistill-yolov8 ( se dà un errore su cuda_home, dare sudo apt install nvidia-cuda-toolkit)

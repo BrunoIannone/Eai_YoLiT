@@ -42,7 +42,34 @@ def get_bbox_from_json(json_file):
     return valid_boxes
 
 
+def get_bbox_from_txt(path):
+    """Takes a .txt file containing all the bounding boxes for an image and returns a list of them.
+    .txt files is expected to have a row for each bounding box .
+
+    Returns:
+        List: returns a List of list, each containing a bounding box parameters. 
+    """
+    righe = []
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            righe = file.readlines()
+    except FileNotFoundError:
+        print(f"Errore: Il file '{path}' non è stato trovato.")
+    except Exception as e:
+        print(f"Errore durante la lettura del file: {e}")
+
+    return [riga.strip() for riga in righe]
+
+
 def bbox_coord_from_dict(bbox_dict):
+    """Takes a dictionary of the form {X:,Y:,W:,H:} and returns the bbox_dict values as integers
+
+    Args:
+        bbox_dict (_type_): _description_
+
+    Returns:
+        tuple: tuple containing (x,y,w,h). Each element is an integer
+    """
     x = int(bbox_dict['X'])
     y = int(bbox_dict['Y'])
     w = int(bbox_dict['W'])
@@ -133,88 +160,60 @@ def draw_bounding_boxes_from_json(f_json_file, l_json_file, r_json_file, images_
 
 
 # f_json_file, l_json_file, r_json_file, images_dir, show):
-def draw_bounding_boxes_from_list(f_list, images_dir, show):
-    """Draw the bounding boxes over all images of a sample. Json files contain X and Y coordinates, Width (W) and Height (H) of the bounding box and a binary list of valid samples.
+def draw_bounding_boxes_from_list(f_list, images_dir):
+    """Draw the face, left eye and right eye bounding boxes on the image from a list"
 
     Args:
-        f_json_file (str): Path to face bounding box json
-        l_json_file (str): Path to left eye bounding box json
-        r_json_file (str): Path to right eye bounding box json
+        f_list (List): List of list bboxes for face, left eye and right eye
+        images_dir (str): path to the image
 
-        images_dir (str): path to folder containing all sample images.
-        show (bool): True: show all sample images one at a time (press a button to move to the next one). Else: do nothing.
-
-    Raises:
-        ValueError: raise an error when the number of images and bounding boxes mismatch.
     """
-    # f_data = get_bbox_from_json(f_list)
 
-   # l_eye_data = get_bbox_from_json(l_json_file)
+    x = int(float(f_list[0].split(" ")[0]))
+    y = int(float(f_list[0].split(" ")[1]))
+    w = int(float(f_list[0].split(" ")[2]))
+    h = int(float(f_list[0].split(" ")[3]))
 
-    # r_eye_data = get_bbox_from_json(r_json_file)
+    l_x = int(float(f_list[1].split(" ")[0]))
+    l_y = int(float(f_list[1].split(" ")[1]))
+    l_w = int(float(f_list[1].split(" ")[2]))
+    l_h = int(float(f_list[1].split(" ")[3]))
 
-    # RICORDATI DI MODIFICARE
-    images = sorted([img for img in os.listdir(images_dir)])
+    r_x = int(float(f_list[2].split(" ")[0]))
+    r_y = int(float(f_list[2].split(" ")[1]))
+    r_w = int(float(f_list[2].split(" ")[2]))
+    r_h = int(float(f_list[2].split(" ")[3]))
 
-    # if len(f_data) != len(images) or len(l_eye_data) != len(images) or len(r_eye_data) != len(images):
-    #     raise ValueError(
-    #         f"Dimension mismatch: data has {len(f_data)} items, left eye data has {len(l_eye_data)}, right eye data has {len(r_eye_data)}, frames dir {images_dir} has {len(images)} items.")
+    sample = cv2.imread(images_dir)
 
-    for i, img in enumerate(images):
+    if sample is not None:
 
-        print(f"index {i}, image {img}")
+        # Face bbox
+        start_point = (x, y)
+        end_point = (x + w, y + h)
+        color = (0, 0, 255)  # Red color in BGR
+        thickness = 2
+        cv2.rectangle(sample, start_point, end_point, color, thickness)
 
-        # if f_data[i] == 0 or l_eye_data[i] == 0 or r_eye_data[i] == 0:
-        #     continue
+        # Left eye bbox
+        l_start_point = (x + l_x, y + l_y)
+        # eye bbox is referred to face bbox top left corner
+        l_end_point = (x + l_w + l_x, y + l_h + l_y)
+        color = (0, 255, 0)  # green square
+        cv2.rectangle(sample, l_start_point, l_end_point, color, thickness)
 
-        x = int(f_list[i][0])
-        y = int(f_list[i][1])
-        w = int(f_list[i][2])
-        h = int(f_list[i][3])
+        # right eye bbox
+        r_start_point = (x + r_x, y + r_y)
+        # eye bbox is referred to face bbox top left corner
+        r_end_point = (x + r_w + r_x, y + r_h + r_y)
+        color = (255, 0, 0)  # blue square
+        cv2.rectangle(sample, r_start_point, r_end_point, color, thickness)
 
-        # l_x = int(l_eye_data[i]['X'])
-        # l_y = int(l_eye_data[i]['Y'])
-        # l_w = int(l_eye_data[i]['W'])
-        # l_h = int(l_eye_data[i]['H'])
+        cv2.imshow("Sample", sample)
+        k = cv2.waitKey(0)
 
-        # r_x = int(r_eye_data[i]['X'])
-        # r_y = int(r_eye_data[i]['Y'])
-        # r_w = int(r_eye_data[i]['W'])
-        # r_h = int(r_eye_data[i]['H'])
-
-        sample = os.path.join(images_dir, f"{img}")
-        sample = cv2.imread(sample)
-
-        if sample is not None:
-
-            # Face bbox
-            start_point = (x, y)
-            end_point = (x + w, y + h)
-            color = (0, 0, 255)  # Red color in BGR
-            thickness = 2
-            print(x+w)
-            cv2.rectangle(sample, start_point, end_point, color, thickness)
-
-            # # Left eye bbox
-            # l_start_point = (x + l_x, y + l_y)
-            # # eye bbox is referred to face bbox top left corner
-            # l_end_point = (x + l_w + l_x, y + l_h + l_y)
-            # color = (0, 255, 0)  # green square
-            # cv2.rectangle(sample, l_start_point, l_end_point, color, thickness)
-
-            # # right eye bbox
-            # r_start_point = (x + r_x, y + r_y)
-            # # eye bbox is referred to face bbox top left corner
-            # r_end_point = (x + r_w + r_x, y + r_h + r_y)
-            # color = (255, 0, 0)  # blue square
-            # cv2.rectangle(sample, r_start_point, r_end_point, color, thickness)
-
-            if show:
-                cv2.imshow("Sample", sample)
-                k = cv2.waitKey(0)
-            break
-        else:
-            print(f"Failed to read {img}.")
+    else:
+        print(f"Failed to read {images_dir}.")
 
 
 def sort_samples(images_dir, dest_dir):
@@ -245,6 +244,14 @@ def sort_samples(images_dir, dest_dir):
 
 
 def bbox_dict_to_list_of_list(bbox_dict):
+    """Converts a list of bounding box dictionaries into a list of lists.
+
+    Args:
+        bbox_dict (List): List of bounding boxes dictionaries. 
+
+    Returns:
+        List: List of list of bounding boxes.
+    """
     bbox_list = []
     for dict in bbox_dict:
         if dict == 0:
@@ -288,35 +295,50 @@ def coco_to_yolo_bbox_converter(bbox_list, image_width, image_height):
 
 
 def write_list(elem_list, dest_folder, file_name):
+    """Aux function for writing all the bounding boxes (in elem_list) for an image in a .txt file. The .txt file will have a row for each class.
 
+    Args:
+        elem_list (List): List of list of bounding boxes parameters.
+        dest_folder (str): path where we want to save the .txt.
+        file_name (str): Name we want to give to the .txt
+    """
     with open(os.path.join(dest_folder, file_name + ".txt"), "a") as file:
-        # Convert elem_list to a list of values
+
         elem_list = list(elem_list.values())
-
-        # Join the elements with a space to avoid trailing space
         line = " ".join(map(str, elem_list))
-
-        # Write the line followed by a newline
         file.write(line + "\n")
 
 
 def convert_gazecapture_for_yolo(src_folder):
+    """This function takes the GazeCapture dataset and make it suitable for YoLo training. 
+    Namely, it creates the images and labels folders and, inside bot, it creates the train, val and test set folders.
+    Next, each image is sorted inside its respective set folder while doing the same with a .txt file containing bbox information for each sample image. Notice that the .txt is put
+    inside the labels. Each images and .txt have the same name. It is formed by the sample id plus an index representing the i-th image for the sample.
+    Namely, each file will be <sampleid>_<index>.{jpg,txt}
 
-    os.makedirs(os.path.join(src_folder, "images"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "images/test"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "images/val"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "images/train"),exist_ok=True)
 
-    os.makedirs(os.path.join(src_folder, "labels"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "labels/test"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "labels/val"),exist_ok=True)
-    os.makedirs(os.path.join(src_folder, "labels/train"),exist_ok=True)
+    Args:
+        src_folder (str): Path to dataset folder
 
-    to_avoid_dirs = ["images","labels"]
+    Raises:
+        ValueError: raise an error if bounding boxes number for an image mismatch
+    """
+
+    os.makedirs(os.path.join(src_folder, "images"), exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "images/test"), exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "images/val"), exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "images/train"), exist_ok=True)
+
+    os.makedirs(os.path.join(src_folder, "labels"), exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "labels/test"), exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "labels/val"), exist_ok=True)
+    os.makedirs(os.path.join(src_folder, "labels/train"), exist_ok=True)
+
+    to_avoid_dirs = ["images", "labels"]
 
     for persona in os.listdir(src_folder):
 
-        if persona in to_avoid_dirs or not os.path.isdir(os.path.join(src_folder, persona)) :
+        if persona in to_avoid_dirs or not os.path.isdir(os.path.join(src_folder, persona)):
             continue
 
         f_data = get_bbox_from_json(os.path.join(
@@ -340,28 +362,35 @@ def convert_gazecapture_for_yolo(src_folder):
 
         for i, image in enumerate(samples):
             if f_data[i] == 0 or l_eye_data[i] == 0 or r_eye_data[i] == 0:
-                #print("Invalid bbox", persona, image)
+                # print("Invalid bbox", persona, image)
                 continue
 
             src_image_path = os.path.join(src_folder, persona, "frames", image)
             new_name = persona + "_" + str(i) + "." + "jpg"
-            
-            img_dest_folder = os.path.join(src_folder ,"images", destination_set["Dataset"])
+
+            img_dest_folder = os.path.join(
+                src_folder, "images", destination_set["Dataset"])
             shutil.move(src_image_path, img_dest_folder)
             os.rename(os.path.join(img_dest_folder, image),
                       os.path.join(img_dest_folder, new_name))
-            txt_dest_folder = os.path.join(src_folder , "labels", destination_set["Dataset"])
+            txt_dest_folder = os.path.join(
+                src_folder, "labels", destination_set["Dataset"])
             write_list(f_data[i], txt_dest_folder, new_name.split(".")[0])
             write_list(l_eye_data[i], txt_dest_folder, new_name.split(".")[0])
             write_list(r_eye_data[i], txt_dest_folder, new_name.split(".")[0])
         shutil.rmtree(os.path.join(src_folder, persona))
 
 
-
 def count_samples(src_folder):
-    set = {"test":0,"train":0,"val":0}
+    """Count the number of valid images (so eye bbox, left eye bbox and right eye bbox "isValid" parameter in the .json must be 1) for each person.
+    The counting is divided for train, validation and test set. This info is get from sample/info.json.
+
+    Args:
+        src_folder (str): dataset folder path
+    """
+    set = {"test": 0, "train": 0, "val": 0}
     for persona in os.listdir(src_folder):
-        if not os.path.isdir(os.path.join(src_folder, persona)) :
+        if not os.path.isdir(os.path.join(src_folder, persona)):
             continue
         f_data = get_bbox_from_json(os.path.join(
             src_folder, persona, 'appleFace.json'))
@@ -379,10 +408,8 @@ def count_samples(src_folder):
 
         for i, image in enumerate(samples):
             if f_data[i] == 0 or l_eye_data[i] == 0 or r_eye_data[i] == 0:
-                #print("Invalid bbox", persona, image)
+                # print("Invalid bbox", persona, image)
                 continue
-            set[destination_set["Dataset"]]+=1
-        
-    print(set)    
-        
+            set[destination_set["Dataset"]] += 1
 
+    print(set)
