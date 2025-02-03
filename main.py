@@ -2,7 +2,7 @@ import torch
 # from autodistill_grounded_sam_2 import GroundedSAM2
 # from autodistill.detection import CaptionOntology
 # from autodistill_yolov8 import YOLOv8 #TODO: Forse per funzionare bisognerà fare downgrade di ultralytics
-from torchvision.io import read_image
+#from torchvision.io import read_image
 from ultralytics import YOLO
 import utils
 import albumentations as A
@@ -10,15 +10,16 @@ import cv2 as cv
 import numpy as np
 import os
 import argparse
-from yolo_params import yolo_params_
+from yolo_params import yolo_params_,dir,checkpoint
 def main():
     parser = argparse.ArgumentParser(description="Training main")
-    parser.add_argument("model", type=str, help="model to train can be yolo or",required=True)
-    parser.add_argument("yolo_size", type=str, help="Choose yolo model size, can be n,s,m" ,required=False,default="s")
+    parser.add_argument("--model", type=str, help="model to train can be yolo or",required=True)
+    parser.add_argument("--yolo_size", type=str, help="Choose yolo model size, can be n,s,m" ,required=False,default="s")
 
-    parser.add_argument("mode", type=str, help="can be train or predict" ,required=True)
-    parser.add_argument("directory", type=str, help="Dataset directory" ,required=True)
-    parser.add_argument("sample_id", type=int, help="Sample id to predict" ,required=False)
+    parser.add_argument("--mode", type=str, help="can be train or predict" ,required=True)
+    parser.add_argument("--sample_id", type=str, help="Sample id to predict" ,required=False)
+    parser.add_argument("--checkpoint", type=str, help="Checkpoint path" ,required=False,default= checkpoint)
+
     
     args = parser.parse_args()
 
@@ -27,8 +28,9 @@ def main():
         model = YOLO("yolov8" + args.yolo_size + ".pt")
         results = model.train(**yolo_params_)
     elif args.model == "yolo" and args.mode == "predict":
+        model = YOLO(args.checkpoint)
 
-        results = model(os.path.join(yolo_params_[dir], "/images/test/",args.sample_id,".jpg"))  # predict on an image
+        results = model(os.path.join(dir, "/images/test/",args.sample_id,".jpg"))  # predict on an image
 
         image_with_boxes = results[0].plot()
 

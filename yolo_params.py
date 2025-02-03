@@ -1,5 +1,5 @@
 dir = "/home/bruno/Scaricati/Dataset/GazeCapture"  # 03454
-
+checkpoint = ""
 yolo_params_ = {
         "data": dir + "/data.yaml", 
         # "fraction":1.0, #Allows for training on a subset of the full dataset
