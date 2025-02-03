@@ -29,10 +29,10 @@ def get_bbox_from_json(json_file):
     for i in range(len(data['IsValid'])):
         if data['IsValid'][i] == 1:  # Check if the detection is valid
             box = {
-                'X': data['X'][i],
-                'Y': data['Y'][i],
-                'W': data['W'][i],
-                'H': data['H'][i]
+                'X': float(data['X'][i]),
+                'Y': float(data['Y'][i]),
+                'W': float(data['W'][i]),
+                'H': float(data['H'][i])
             }
             valid_boxes.append(box)
 
@@ -57,8 +57,14 @@ def get_bbox_from_txt(path):
         print(f"Errore: Il file '{path}' non è stato trovato.")
     except Exception as e:
         print(f"Errore durante la lettura del file: {e}")
-
-    return [riga.strip() for riga in righe]
+    
+    bbox = []
+    for riga in righe:
+        bbox_ = []
+        for value in riga.strip().split(" "):
+            bbox_.append(float(value))
+        bbox.append(bbox_)
+    return bbox
 
 
 def bbox_coord_from_dict(bbox_dict):
@@ -275,21 +281,41 @@ def coco_to_yolo_bbox_converter(bbox_list, image_width, image_height):
         list of tuples: Lista di bounding box in formato YOLO (x_center, y_center, width, height).
     """
     yolo_bboxes = []
-    for bbox in bbox_list:
-        x_min, y_min, width, height = bbox
+    for i,bbox in enumerate(bbox_list):
+        if(i>0):
+            x_min, y_min, width, height = bbox
+            #print(bbox)
+            # Calcolo centro della bounding box
+            x_min += bbox_list[0][0]
+            y_min+= bbox_list[0][1]
 
-        # Calcolo centro della bounding box
-        x_center = x_min + width / 2.0
-        y_center = y_min + height / 2.0
+            x_center = x_min + width / 2.0
+            y_center = y_min + height / 2.0
 
-        # Normalizzazione rispetto alla dimensione dell'immagine
-        x_center /= image_width
-        y_center /= image_height
-        width /= image_width
-        height /= image_height
+            # Normalizzazione rispetto alla dimensione dell'immagine
+            x_center /= image_width
+            y_center /= image_height
+            width /= image_width
+            height /= image_height
 
-        # Aggiungi la bounding box YOLO alla lista
-        yolo_bboxes.append([x_center, y_center, width, height])
+            # Aggiungi la bounding box YOLO alla lista
+            yolo_bboxes.append([x_center, y_center, width, height])
+
+        else:
+            x_min, y_min, width, height = bbox
+            #print(bbox)
+            # Calcolo centro della bounding box
+            x_center = x_min + width / 2.0
+            y_center = y_min + height / 2.0
+
+            # Normalizzazione rispetto alla dimensione dell'immagine
+            x_center /= image_width
+            y_center /= image_height
+            width /= image_width
+            height /= image_height
+
+            # Aggiungi la bounding box YOLO alla lista
+            yolo_bboxes.append([x_center, y_center, width, height])
 
     return yolo_bboxes
 
@@ -304,7 +330,7 @@ def write_list(elem_list, dest_folder, file_name):
     """
     with open(os.path.join(dest_folder, file_name + ".txt"), "a") as file:
 
-        for class_id, bbox_params in enumerate(elem_list.values()):  # Add class ID based on line index
+        for class_id, bbox_params in enumerate(elem_list):  # Add class ID based on line index
             line = f"{class_id} " + " ".join(map(str, bbox_params))
             file.write(line + "\n")
 
@@ -375,7 +401,7 @@ def convert_gazecapture_for_yolo(src_folder, label_list):
 
         f_data = get_bbox_from_json(os.path.join(
             src_folder, persona, 'appleFace.json'))
-
+        
         l_eye_data = get_bbox_from_json(os.path.join(
             src_folder, persona, 'appleLeftEye.json'))
 
@@ -396,8 +422,13 @@ def convert_gazecapture_for_yolo(src_folder, label_list):
             if f_data[i] == 0 or l_eye_data[i] == 0 or r_eye_data[i] == 0:
                 # print("Invalid bbox", persona, image)
                 continue
-
+            #image_path = os.path.join(src_folder, persona, "frames", image)
             src_image_path = os.path.join(src_folder, persona, "frames", image)
+
+            # Load image using OpenCV
+            img = cv2.imread(src_image_path)
+            image_height, image_width, _ = img.shape  # height, width, channels
+            #print(type(image_height),type(image_width))
             new_name = persona + "_" + str(i) + "." + "jpg"
 
             img_dest_folder = os.path.join(
@@ -407,10 +438,9 @@ def convert_gazecapture_for_yolo(src_folder, label_list):
                       os.path.join(img_dest_folder, new_name))
             txt_dest_folder = os.path.join(
                 src_folder, "labels", destination_set["Dataset"])
-            ##TODO: convert bboxes to yolo
-            write_list(f_data[i], txt_dest_folder, new_name.split(".")[0])
-            write_list(l_eye_data[i], txt_dest_folder, new_name.split(".")[0])
-            write_list(r_eye_data[i], txt_dest_folder, new_name.split(".")[0])
+            
+            bbox_list = coco_to_yolo_bbox_converter([list(f_data[i].values()),list(l_eye_data[i].values()),list(r_eye_data[i].values())],image_width,image_height)
+            write_list(bbox_list, txt_dest_folder, new_name.split(".")[0])
         shutil.rmtree(os.path.join(src_folder, persona))
     write_dataset_yaml(src_folder,label_list)    
 
@@ -446,3 +476,38 @@ def count_samples(src_folder):
             set[destination_set["Dataset"]] += 1
 
     print(set)
+def draw_yolo_bboxes(image_path, yolo_boxes, class_names=None):
+    """
+    Disegna le bounding box YOLO su un'immagine.
+    
+    :param image_path: Percorso dell'immagine di input
+    :param yolo_boxes: Lista di bounding box in formato YOLO (x_center, y_center, width, height) normalizzato
+    :param output_path: Percorso dell'immagine di output
+    :param class_names: Lista opzionale dei nomi delle classi
+    """
+    # Carica l'immagine
+    image = cv2.imread(image_path)
+    height, width, _ = image.shape
+    
+    for box in yolo_boxes:
+        print(box)
+        class_id, x_center, y_center, w, h = box
+        
+        # Converti le coordinate normalizzate in pixel
+        x_center, y_center, w, h = int(x_center * width), int(y_center * height), int(w * width), int(h * height)
+        x1, y1 = int(x_center - w / 2), int(y_center - h / 2)
+        x2, y2 = int(x_center + w / 2), int(y_center + h / 2)
+        
+        # Disegna il rettangolo
+        color = (0, 255, 0)  # Verde
+        cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+        
+        # Aggiungi il nome della classe, se disponibile
+        if class_names:
+            label = class_names[int(class_id)]
+            cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.imshow("Sample", image)
+        k = cv2.waitKey(0)
+    # Salva l'immagine risultante
+    #cv2.imwrite(output_path, image)
+    #print(f"Immagine salvata in {output_path}")
