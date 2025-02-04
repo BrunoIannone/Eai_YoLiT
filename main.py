@@ -16,7 +16,7 @@ def main():
     parser.add_argument("--model", type=str, help="model to train can be yolo or",required=True)
     parser.add_argument("--yolo_size", type=str, help="Choose yolo model size, can be n,s,m" ,required=False,default="s")
 
-    parser.add_argument("--mode", type=str, help="can be train or predict" ,required=True)
+    parser.add_argument("--mode", type=str, help="can be train, predict or webcam" ,required=True)
     parser.add_argument("--sample_id", type=str, help="Sample id to predict" ,required=False)
     parser.add_argument("--checkpoint", type=str, help="Checkpoint path" ,required=False,default= checkpoint)
 
@@ -27,6 +27,7 @@ def main():
         
         model = YOLO("yolov8" + args.yolo_size + ".pt")
         results = model.train(**yolo_params_)
+        
     elif args.model == "yolo" and args.mode == "predict":
         model = YOLO(args.checkpoint)
 
