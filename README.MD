@@ -23,6 +23,13 @@ To convert this dataset for YoLo training, one might use the function **`convert
 
 This section explains how to use the project.
 
+## Requirements
+
+Install requirements using
+```sh
+pip install -r requirements.txt
+```
+
 ## Arguments
 
 When running `main.py`, the following parameters can be used:
